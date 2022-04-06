@@ -35,11 +35,8 @@ class CommercialSales(scrapy.Spider):
         
         # loop over postcodes
         for city in self.cities:
-            for count in range(1,2):
+            for count in range(1,30):
                 next_city= self.base_url+ city + '/haeuser/kaufen?d=true&sd=DESC&sf=RELEVANCE&sp='+ str(count)
-                print('sdf')
-                print(next_city)
-                print(city)
                 yield scrapy.Request(url=next_city, headers = self.headers, meta={'city':city , 'count': count}, callback = self.parse_links)
                 
            
@@ -55,7 +52,7 @@ class CommercialSales(scrapy.Spider):
         for card in res.css('div[class="EstateItem-1c115"]'):
             card_link = card.css('a[class="mainSection-b22fb noProject-eaed4"]::attr(href)').get()
             yield scrapy.Request(url=card_link, headers = self.headers, meta={'city':city , 'count': count}, callback = self.parse_listing)
-            print(card_link)
+
                                          
                                          
     # parse listing
@@ -65,6 +62,7 @@ class CommercialSales(scrapy.Spider):
         price =  str(res.css('strong[class="ng-star-inserted"] *::text').getall()[0])[:-2]
         price = int(price.replace(".",""))
         surface = str(res.css('span[class="has-font-300"] *::text').getall()[0])
+        surface = int(surface.replace(" m²",""))
         room = str(res.css('span[class="has-font-300"] *::text').getall()[1])
         city = str(res.meta.get('city'))
         address1 = str(res.css('span[class="has-font-100 is-bold flex flex-wrap"] *::text').getall()[0])+str(res.css('span[class="has-font-100 is-bold flex flex-wrap"] *::text').getall()[1])
